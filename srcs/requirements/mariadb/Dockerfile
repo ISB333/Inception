@@ -1,0 +1,13 @@
+FROM alpine:3.15
+
+RUN apk update && \
+	apk add --no-cache mariadb mariadb-client
+
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+ENV MYSQL_DATABASE=${MYSQL_DATABASE}
+ENV MYSQL_USER=${MYSQL_USER}
+ENV MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+EXPOSE 3306
+
+CMD ["mysqld"]
