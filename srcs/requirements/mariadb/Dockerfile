@@ -1,13 +1,12 @@
-FROM alpine:3.15
+FROM debian:buster
 
-RUN apk update && \
-	apk add --no-cache mariadb mariadb-client
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt-get install mariadb-server -y
 
-ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-ENV MYSQL_DATABASE=${MYSQL_DATABASE}
-ENV MYSQL_USER=${MYSQL_USER}
-ENV MYSQL_PASSWORD=${MYSQL_PASSWORD}
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+COPY conf/script.sh /script.sh
 
-EXPOSE 3306
+ENTRYPOINT ["bash", "script.sh"]
 
-CMD ["mysqld"]
+# RUN service mysql start && mysql < ./script.sql

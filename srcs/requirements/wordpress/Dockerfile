@@ -1,10 +1,17 @@
-FROM wordpress:latest
+FROM debian:buster
 
-ENV WORDPRESS_DB_HOST=mariadb
-ENV WORDPRESS_DB_USER=${MYSQL_USER}
-ENV WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}
-ENV WORDPRESS_DB_NAME=${MYSQL_DATABASE}
+RUN apt update -y
+RUN apt upgrade -y
+RUN apt install -y wget
+RUN apt install -y php7.3\
+php-fpm\
+php-mysql\
+mariadb-client
 
-EXPOSE 9000
+RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www
+RUN cd/var/www && tar -zxf wordpress-6.0-fr_FR.tar.gz && rm wordpress-6.0-fr_FR.tar.gz
+RUN chown -R root:root /var/www/wordpress
 
-CMD ["php-fpm"]
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
