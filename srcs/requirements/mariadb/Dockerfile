@@ -2,11 +2,13 @@ FROM debian:buster
 
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt-get install mariadb-server -y
+RUN apt install -y mariadb-server \
+					procps \
+					netcat
 
 COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-COPY conf/script.sh /script.sh
+COPY conf/auto_config.sh /auto_config.sh
 
-ENTRYPOINT ["bash", "script.sh"]
+EXPOSE 3306
 
-# RUN service mysql start && mysql < ./script.sql
+ENTRYPOINT ["bash", "auto_config.sh"]
