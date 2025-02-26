@@ -5,22 +5,26 @@ mkdir -p /var/run/mysqld
 chown -R mysql:mysql /var/run/mysqld
 chmod 777 /var/run/mysqld
 
-# Start MySQL service properly
-service mysql start
+# Check if database is already initialized
+if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+    # Initialize MySQL data directory
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-# Wait for MySQL to be ready
-while ! mysqladmin ping -h"localhost" --silent; do
-    sleep 2
-done
+	echo "Initializing mariadb database\n"
 
-# Create database and users
-mysql -e "CREATE DATABASE IF NOT EXISTS ${SQL_DATABASE};"
-mysql -e "CREATE USER IF NOT EXISTS '${SQL_USER}'@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-mysql -e "GRANT ALL PRIVILEGES ON ${SQL_DATABASE}.* TO '${SQL_USER}'@'%';"
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-mysql -e "FLUSH PRIVILEGES;"
+    # Create a temporary file with SQL commands
+    cat > /tmp/init.sql << EOF
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+EOF
 
-mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
+    # Start MySQL server in the background, run initialization, then stop it
+    mysqld --user=mysql --bootstrap < /tmp/init.sql
+    rm /tmp/init.sql
+fi
 
 # Keep MySQL running
 exec mysqld_safe

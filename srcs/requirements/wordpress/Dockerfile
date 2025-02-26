@@ -2,28 +2,30 @@ FROM debian:buster
 
 RUN apt update -y 
 RUN apt upgrade -y
-# RUN apt install -y wget
-RUN apt install -y php7.3\
-	php-fpm\
-	php-mysql\
-	mariadb-client
+RUN apt install -y php7.3 \
+    php-fpm \
+    php-mysql \
+    mariadb-client \
+    wget \
+    sudo
 
-# RUN wget https://wordpress.org/wordpress-6.0.tar.gz -P /var/www
-# RUN cd /var/www && tar -xzf wordpress-6.0.tar.gz && rm wordpress-6.0.tar.gz
+# Download and extract WordPress
+RUN wget https://wordpress.org/wordpress-6.0.tar.gz -P /var/www
+RUN cd /var/www && tar -xzf wordpress-6.0.tar.gz && rm wordpress-6.0.tar.gz
+COPY ./conf/php.conf /etc/php/7.3/fpm/pool.d/www.conf
 
-# COPY ./conf/php.conf			/etc/php/7.3/fpm/pool.d/www.conf
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/wordpress
+RUN chmod -R 755 /var/www/wordpress
 
-# # RUN chown -R root:root /var/www/wordpress
-# RUN chown -R www-data:www-data /var/www/wordpress
-# RUN chmod -R 755 /var/www/wordpress
+# Install WP-CLI the correct way
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+RUN chmod +x wp-cli.phar
+RUN mv wp-cli.phar /usr/local/bin/wp
+RUN wp --info
 
-# RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+COPY conf/auto_config.sh /auto_config.sh
+RUN chmod +x /auto_config.sh
 
-# RUN chmod +x wp-cli.phar
-# RUN mv wp-cli.phar /usr/local/bin/wp
-
-# COPY conf/auto_config.sh auto_config.sh
-
-# ENTRYPOINT [ "bash", "auto_config.sh" ]
-
-CMD ["/usr/sbin/php-fpm7.3", "-F"]
+EXPOSE 9000
+ENTRYPOINT ["/auto_config.sh"]

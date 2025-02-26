@@ -1,62 +1,63 @@
 version: '3.8'
 
 services:
-  # mariadb:
-  #   build: ./requirements/mariadb
-  #   container_name: mariadb
-  #   environment:
-  #     SQL_ROOT_PASSWORD: '${SQL_ROOT_PASSWORD}'
-  #     SQL_DATABASE: '${SQL_DATABASE}'
-  #     SQL_USER: '${SQL_USER}'
-  #     SQL_PASSWORD: '${SQL_PASSWORD}'
-  #   volumes:
-  #     - db_data:/var/lib/mysql
-  #   restart: always
-  #   networks:
-  #     - inception_net
+  mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - db_data:/var/lib/mysql
+      # source:target
+    restart: always
+    networks:
+      - inception_net
 
   wordpress:
     build: ./requirements/wordpress
     container_name: wp-php
-  #   depends_on:
-  #     - mariadb
-  #   environment:
-  #     SQL_HOST: mariadb
-  #     SQL_DATABASE: '${SQL_DATABASE}'
-  #     SQL_USER: '${SQL_USER}'
-  #     SQL_PASSWORD: ${SQL_PASSWORD}
-  #     DOMAIN_NAME: ${DOMAIN_NAME}
-  #     SITE_TITLE: ${SITE_TITLE}
-  #     ADMIN_USER: ${ADMIN_USER}
-  #     ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-  #     ADMIN_MAIL: ${ADMIN_MAIL}
-  #     USER1_LOGIN: ${USER1_LOGIN}
-  #     USER1_PASSWORD: ${USER1_PASSWORD}
-  #     USER1_MAIL: ${USER1_MAIL}
-  #   volumes:
-  #     - wp_data:/var/www/wordpress
-  #   restart: always
-  #   networks:
-  #     - inception_net
+    depends_on:
+      - mariadb
+    environment:
+      MYSQL_HOST: mariadb
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      DOMAIN_NAME: "${DOMAIN_NAME}"
+      SITE_TITLE: "${SITE_TITLE}"
+      ADMIN_USER: "${ADMIN_USER}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      ADMIN_MAIL: "${ADMIN_MAIL}"
+      USER1_LOGIN: "${USER1_LOGIN}"
+      USER1_PASSWORD: "${USER1_PASSWORD}"
+      USER1_MAIL: "${USER1_MAIL}"
+    volumes:
+      - wp_data:/var/www/wordpress
+    restart: always
+    networks:
+      - inception_net
 
   nginx:
     build: ./requirements/nginx
     container_name: nginx
     cap_add:
       - NET_BIND_SERVICE
-    # depends_on:
-    #   - wordpress
+    depends_on:
+      - wordpress
     ports:
       - "8080:80"
-    # volumes:
-    #   - wp_data:/var/www/html
-    # restart: always
-    # networks:
-    #   - inception_net
+    volumes:
+      - wp_data:/var/www/html
+    restart: always
+    networks:
+      - inception_net
 
-# volumes:
-#   db_data:
-#   wp_data:
+volumes:
+  db_data:
+  wp_data:
 
-# networks:
-#   inception_net:
+networks:
+  inception_net:
