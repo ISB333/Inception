@@ -8,19 +8,11 @@ echo "Database User: $MYSQL_USER"
 
 # Wait for MariaDB to be ready
 echo "Waiting for MariaDB to be ready..."
-for i in {1..10}; do
-    if mariadb -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "SELECT 1" >/dev/null 2>&1; then
-        echo "MariaDB is ready!"
-        break
-    fi
-    echo "MariaDB is not ready yet... waiting (attempt $i/30)"
+while ! mariadb -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_ROOT_PASSWORD --silent 2>/dev/null; do
+    echo "MariaDB is not ready yet... waiting 5 seconds"
     sleep 5
-    
-    # If we've tried 30 times and still not connected, create a manual config
-    if [ $i -eq 10 ]; then
-        echo "Could not connect to MariaDB after multiple attempts. Creating manual config."
-    fi
 done
+echo "MariaDB is ready!"
 
 # Check if wp-config.php already exists
 if [ -f /var/www/wordpress/wp-config.php ] && [ -s /var/www/wordpress/wp-config.php ]; then
@@ -28,59 +20,12 @@ if [ -f /var/www/wordpress/wp-config.php ] && [ -s /var/www/wordpress/wp-config.
 else
     echo "wp-config.php does not exist. Creating it manually..."
     
-#     # Create wp-config.php manually rather than using WP-CLI
-#     cat > /var/www/wordpress/wp-config.php << EOF
-# <?php
-# // ** MySQL settings - You can get this info from your web host ** //
-# /** The name of the database for WordPress */
-# define( 'DB_NAME', '$MYSQL_DATABASE' );
-
-# /** MyMYSQL database username */
-# define( 'DB_USER', '$MYSQL_USER' );
-
-# /** MyMYSQL database password */
-# define( 'DB_PASSWORD', '$MYSQL_PASSWORD' );
-
-# /** MyMYSQL hostname */
-# define( 'DB_HOST', '$MYSQL_HOST' );
-
-# /** Database Charset to use in creating database tables. */
-# define( 'DB_CHARSET', 'utf8' );
-
-# /** The Database Collate type. Don't change this if in doubt. */
-# define( 'DB_COLLATE', '' );
-
-# /** Authentication Unique Keys and Salts. */
-# define('AUTH_KEY',         '$(openssl rand -base64 64)');
-# define('SECURE_AUTH_KEY',  '$(openssl rand -base64 64)');
-# define('LOGGED_IN_KEY',    '$(openssl rand -base64 64)');
-# define('NONCE_KEY',        '$(openssl rand -base64 64)');
-# define('AUTH_SALT',        '$(openssl rand -base64 64)');
-# define('SECURE_AUTH_SALT', '$(openssl rand -base64 64)');
-# define('LOGGED_IN_SALT',   '$(openssl rand -base64 64)');
-# define('NONCE_SALT',       '$(openssl rand -base64 64)');
-
-# /** WordPress Database Table prefix. */
-# \$table_prefix = 'wp_';
-
-# /** For developers: WordPress debugging mode. */
-# define( 'WP_DEBUG', false );
-
-# /** Absolute path to the WordPress directory. */
-# if ( ! defined( 'ABSPATH' ) ) {
-# 	define( 'ABSPATH', __DIR__ . '/' );
-# }
-
-# /** Sets up WordPress vars and included files. */
-# require_once ABSPATH . 'wp-settings.php';
-# EOF
-
     # More verbose wp config create
     wp config create --allow-root \
-        --dbname=$MYSQL_DATABASE \
-        --dbuser=$MYSQL_USER \
-        --dbpass=$MYSQL_PASSWORD \
-        --dbhost=$MYSQL_HOST \
+        --dbname="$MYSQL_DATABASE" \
+        --dbuser="$MYSQL_USER" \
+        --dbpass="$MYSQL_ROOT_PASSWORD" \
+        --dbhost="$MYSQL_HOST" \
         --path='/var/www/wordpress' \
         --debug
 

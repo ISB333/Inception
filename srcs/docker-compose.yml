@@ -22,7 +22,7 @@ services:
     depends_on:
       - mariadb
     environment:
-      MYSQL_HOST: mariadb
+      MYSQL_HOST: ${MYSQL_HOST} 
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
