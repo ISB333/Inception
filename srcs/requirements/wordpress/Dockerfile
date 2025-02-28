@@ -28,4 +28,5 @@ COPY conf/auto_config.sh /auto_config.sh
 RUN chmod +x /auto_config.sh
 
 EXPOSE 9000
+
 ENTRYPOINT ["/auto_config.sh"]

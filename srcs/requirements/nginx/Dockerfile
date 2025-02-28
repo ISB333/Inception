@@ -17,8 +17,13 @@ RUN openssl req -newkey rsa:4096 -days 42 -nodes -x509 \
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
 # Give rights to the user to edit html folder
-RUN chmod 755 /var/www/html 
-RUN chown -R www-data:www-data /var/www/html
+# RUN chmod 755 /var/www/html 
+# RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p /var/www/wordpress
+RUN chmod 755 /var/www/wordpress
+RUN chown -R www-data:www-data /var/www/wordpress
+
+EXPOSE 443
 
 # Run NGINX
 CMD [ "nginx", "-g", "daemon off;" ]

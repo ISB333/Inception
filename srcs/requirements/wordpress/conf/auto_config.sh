@@ -8,7 +8,7 @@ echo "Database User: $MYSQL_USER"
 
 # Wait for MariaDB to be ready
 echo "Waiting for MariaDB to be ready..."
-while ! mariadb -h$MYSQL_HOST -u$MYSQL_USER -p$MYSQL_ROOT_PASSWORD --silent 2>/dev/null; do
+while ! mysql -h"$MYSQL_HOST" -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT 1" >/dev/null 2>&1; do
     echo "MariaDB is not ready yet... waiting 5 seconds"
     sleep 5
 done
@@ -20,20 +20,61 @@ if [ -f /var/www/wordpress/wp-config.php ] && [ -s /var/www/wordpress/wp-config.
 else
     echo "wp-config.php does not exist. Creating it manually..."
     
-    # More verbose wp config create
-    wp config create --allow-root \
-        --dbname="$MYSQL_DATABASE" \
-        --dbuser="$MYSQL_USER" \
-        --dbpass="$MYSQL_ROOT_PASSWORD" \
-        --dbhost="$MYSQL_HOST" \
-        --path='/var/www/wordpress' \
-        --debug
+    # # More verbose wp config create
+    # wp config create --allow-root \
+    #     --dbname="$MYSQL_DATABASE" \
+    #     --dbuser="$MYSQL_USER" \
+    #     --dbpass="$MYSQL_PASSWORD" \
+    #     --dbhost="$MYSQL_HOST" \
+    #     --path='/var/www/wordpress' \
+    #     --debug
+
+    # echo "wp-config.php has been created."
+    
+    
+    # # We'll still use WP-CLI for this part
+    # echo "Installing WordPress core..."
+    # wp core install --allow-root \
+    #     --url="$DOMAIN_NAME" \
+    #     --title="$SITE_TITLE" \
+    #     --admin_user="$ADMIN_USER" \
+    #     --admin_password="$ADMIN_PASSWORD" \
+    #     --admin_email="$ADMIN_MAIL" \
+    #     --path='/var/www/wordpress'
+	  cat > /var/www/wordpress/wp-config.php << EOF
+<?php
+define('DB_NAME', '$MYSQL_DATABASE');
+define('DB_USER', '$MYSQL_USER');
+define('DB_PASSWORD', '$MYSQL_PASSWORD');
+define('DB_HOST', '$MYSQL_HOST');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+define('AUTH_KEY',         '$(openssl rand -base64 48)');
+define('SECURE_AUTH_KEY',  '$(openssl rand -base64 48)');
+define('LOGGED_IN_KEY',    '$(openssl rand -base64 48)');
+define('NONCE_KEY',        '$(openssl rand -base64 48)');
+define('AUTH_SALT',        '$(openssl rand -base64 48)');
+define('SECURE_AUTH_SALT', '$(openssl rand -base64 48)');
+define('LOGGED_IN_SALT',   '$(openssl rand -base64 48)');
+define('NONCE_SALT',       '$(openssl rand -base64 48)');
+
+define('WP_HOME', 'https://localhost:8443');
+define('WP_SITEURL', 'https://localhost:8443');
+
+\$table_prefix = 'wp_';
+
+define('WP_DEBUG', false);
+
+if ( !defined('ABSPATH') )
+    define('ABSPATH', dirname(__FILE__) . '/');
+
+require_once(ABSPATH . 'wp-settings.php');
+EOF
 
     echo "wp-config.php has been created."
     
-    
-    # We'll still use WP-CLI for this part
-    echo "Installing WordPress core..."
+    # Install WordPress
     wp core install --allow-root \
         --url="$DOMAIN_NAME" \
         --title="$SITE_TITLE" \
@@ -41,6 +82,7 @@ else
         --admin_password="$ADMIN_PASSWORD" \
         --admin_email="$ADMIN_MAIL" \
         --path='/var/www/wordpress'
+    
     
     if [ $? -eq 0 ]; then
         echo "WordPress core installed successfully!"

@@ -13,20 +13,31 @@ if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
     # Initialize MySQL data directory
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-	echo "Initializing mariadb database\n"
-    # Create a temporary file with SQL commands
-    cat > /tmp/init.sql << EOF
+    # Start MySQL server without networking for initialization
+    mysqld --user=mysql --skip-networking &
+    pid="$!"
+    
+    # Wait for MySQL to become available
+    until mysqladmin ping >/dev/null 2>&1; do
+        echo "Waiting for database server to accept connections..."
+        sleep 2
+    done
+    
+    # Create users and databases
+    mysql -u root << EOF
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
-ALTER USER '${MYSQL_USER}'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' WITH GRANT OPTION;
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'wp-php.srcs_inception_net' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'wp-php.srcs_inception_net';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO 'root'@'wp-php.srcs_inception_net';
 FLUSH PRIVILEGES;
 EOF
-
-    # Start MySQL server in the background, run initialization, then stop it
-    mysqld --user=mysql --bootstrap < /tmp/init.sql
-    rm /tmp/init.sql
+    
+    # Stop the temporary MySQL server
+    kill "$pid"
+    wait "$pid"
 fi
 
 # Keep MySQL running
