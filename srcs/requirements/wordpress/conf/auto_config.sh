@@ -59,8 +59,8 @@ define('SECURE_AUTH_SALT', '$(openssl rand -base64 48)');
 define('LOGGED_IN_SALT',   '$(openssl rand -base64 48)');
 define('NONCE_SALT',       '$(openssl rand -base64 48)');
 
-define('WP_HOME', 'https://localhost:8443');
-define('WP_SITEURL', 'https://localhost:8443');
+define('WP_HOME', 'https://adesille.42.fr:8443');
+define('WP_SITEURL', 'https://adesille.42.fr:8443');
 
 \$table_prefix = 'wp_';
 
