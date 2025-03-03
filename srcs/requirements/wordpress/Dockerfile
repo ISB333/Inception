@@ -7,7 +7,8 @@ RUN apt install -y php7.3 \
     php-mysql \
     mariadb-client \
     wget \
-    sudo
+    sudo \
+	tini
 
 # Download and extract WordPress
 RUN wget https://wordpress.org/wordpress-6.0.tar.gz -P /var/www
@@ -29,4 +30,4 @@ RUN chmod +x /auto_config.sh
 
 EXPOSE 9000
 
-ENTRYPOINT ["/auto_config.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/auto_config.sh"]
