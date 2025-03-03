@@ -6,7 +6,6 @@ chown -R mysql:mysql /var/run/mysqld
 chmod 777 /var/run/mysqld
 
 echo "Checking if Database is initialized\n"
-# WE ENTER WELL IN THE CONDITION BELOW, IF WE REMOVE VOLUMES AND IMAGES, WE CAN SEE IT
 
 # Check if database is already initialized
 if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
@@ -41,4 +40,4 @@ EOF
 fi
 
 # Keep MySQL running
-exec mysqld_safe
+exec mysqld --user=mysql --console
