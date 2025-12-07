@@ -74,3 +74,33 @@ srcs/
 2.  **Build Context:** When building the MariaDB image, Docker only needs to look inside `requirements/mariadb/`. It doesn't need to send the WordPress files to the Docker daemon. This speeds up builds.
 3.  **Clarity:** It separates the **Orchestration** (`docker-compose.yml` at the root) from the **Implementation** (Dockerfiles and config scripts inside subfolders).
 4.  **Scalability:** If you wanted to add a new service (e.g., a Redis cache), you simply add a `redis/` folder in `requirements/` and add a few lines to `docker-compose.yml`. You don't have to rewrite the whole project.
+
+---
+
+## 5. SSL/TLS Certificates (HTTPS)
+
+### What is it?
+- **SSL/TLS** (Secure Sockets Layer / Transport Layer Security) is a protocol for establishing authenticated and encrypted links between networked computers.
+- **HTTPS** is simply HTTP over SSL/TLS.
+
+### The Certificate
+Think of a **Certificate** as a digital ID card (passport) for your website. It does two things:
+1.  **Encryption:** It provides the public key used to encrypt data sent between the user and the server.
+2.  **Identity:** It proves that the server is who it claims to be (e.g., "I am really google.com").
+
+### How it works (Simplified)
+1.  **Handshake:** When you connect to `https://adesille.42.fr`, the server sends its **Public Key** (Certificate).
+2.  **Verification:** Your browser checks if the certificate is valid (not expired, matches the domain).
+3.  **Encryption:** Your browser uses the Public Key to encrypt a message. Only the server has the corresponding **Private Key** to decrypt it.
+4.  **Secure Session:** Once they agree on a secret code, they switch to symmetric encryption for the rest of the session (faster).
+
+### In This Project
+- We generated a **Self-Signed Certificate** using `openssl`.
+- **Self-Signed:** Means we signed it ourselves, not a trusted Authority (like Verisign or Let's Encrypt).
+- **Self-Signed:** Means we signed it ourselves, not a trusted Authority (like Verisign or Let's Encrypt).
+- **Trade-off:** Browsers will warn users ("Not Secure"), but the connection is still encrypted and secure from eavesdropping.
+
+### HTTP vs. HTTPS
+- **HTTP:** Plain text. Anyone intercepting the connection can read passwords, cookies, and sensitive data.
+- **HTTPS:** Encrypted. Data is scrambled, so only the intended recipient can read it. This is why HTTPS is required for login pages, payment forms, and any sensitive information.
+
