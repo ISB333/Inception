@@ -116,4 +116,4 @@ mkdir -p /run/php
 
 # Start PHP-FPM
 echo "Starting PHP-FPM..."
-exec /usr/sbin/php-fpm7.3 -F
+exec /usr/sbin/php-fpm8.2 -F

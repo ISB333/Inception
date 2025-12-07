@@ -13,3 +13,5 @@ clean:
 	docker system prune -af
 
 re: down clean build up
+
+.PHONY: all build up down clean re

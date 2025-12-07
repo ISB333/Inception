@@ -1,10 +1,10 @@
-FROM debian:buster
+FROM debian:bookworm
 
 RUN apt update -y 
 RUN apt upgrade -y
-RUN apt install -y php7.3 \
-    php-fpm \
-    php-mysql \
+RUN apt install -y php8.2 \
+    php8.2-fpm \
+    php8.2-mysql \
     mariadb-client \
     wget \
     sudo \
@@ -13,7 +13,7 @@ RUN apt install -y php7.3 \
 # Download and extract WordPress
 RUN wget https://wordpress.org/wordpress-6.0.tar.gz -P /var/www
 RUN cd /var/www && tar -xzf wordpress-6.0.tar.gz && rm wordpress-6.0.tar.gz
-COPY ./conf/php.conf /etc/php/7.3/fpm/pool.d/www.conf
+COPY ./conf/php.conf /etc/php/8.2/fpm/pool.d/www.conf
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/wordpress
