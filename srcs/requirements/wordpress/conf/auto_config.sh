@@ -20,27 +20,6 @@ if [ -f /var/www/wordpress/wp-config.php ] && [ -s /var/www/wordpress/wp-config.
 else
     echo "wp-config.php does not exist. Creating it manually..."
     
-    # # More verbose wp config create
-    # wp config create --allow-root \
-    #     --dbname="$MYSQL_DATABASE" \
-    #     --dbuser="$MYSQL_USER" \
-    #     --dbpass="$MYSQL_PASSWORD" \
-    #     --dbhost="$MYSQL_HOST" \
-    #     --path='/var/www/wordpress' \
-    #     --debug
-
-    # echo "wp-config.php has been created."
-    
-    
-    # # We'll still use WP-CLI for this part
-    # echo "Installing WordPress core..."
-    # wp core install --allow-root \
-    #     --url="$DOMAIN_NAME" \
-    #     --title="$SITE_TITLE" \
-    #     --admin_user="$ADMIN_USER" \
-    #     --admin_password="$ADMIN_PASSWORD" \
-    #     --admin_email="$ADMIN_MAIL" \
-    #     --path='/var/www/wordpress'
 	  cat > /var/www/wordpress/wp-config.php << EOF
 <?php
 define('DB_NAME', '$MYSQL_DATABASE');
@@ -111,7 +90,6 @@ else
     echo "❌ ERROR: wp-config.php does not exist!"
 fi
 
-# Create PHP-FPM runtime directory
 mkdir -p /run/php
 
 # Start PHP-FPM

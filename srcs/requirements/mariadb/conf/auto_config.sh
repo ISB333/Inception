@@ -1,18 +1,17 @@
 #!/bin/sh
 
-# Create necessary directories
 mkdir -p /var/run/mysqld
 chown -R mysql:mysql /var/run/mysqld
 chmod 777 /var/run/mysqld
 
 echo "Checking if Database is initialized\n"
 
-# Check if database is already initialized
 if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
-    # Initialize MySQL data directory
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-    # Start MySQL server without networking for initialization
+    # Start MariaDB/MySQL daemon in background with networking disabled for security.
+    # The skip-networking flag prevents external connections during initialization,
+    # allowing only local socket-based access. Process ID is captured for later management.
     mysqld --user=mysql --skip-networking &
     pid="$!"
     
@@ -34,10 +33,13 @@ GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO 'root'@'wp-php.srcs_inception_net
 FLUSH PRIVILEGES;
 EOF
     
-    # Stop the temporary MySQL server
+    # Terminates the process with the specified PID and waits for it to complete.
+    # This is important because:
+    # 1. kill() sends a termination signal to gracefully shut down the process
+    # 2. wait() ensures the process has fully exited before continuing
+    # 3. Together, they prevent zombie processes and resource leaks
     kill "$pid"
     wait "$pid"
 fi
 
-# Keep MySQL running
 exec mysqld --user=mysql --console

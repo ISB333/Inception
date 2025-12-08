@@ -1,11 +1,11 @@
-[mysql]
-default-character-set=utf8
+[mysql]     # Client settings (mysql)
+default-character-set=utf8           # Client default encoding
 
-[mysqld]
-datadir = /var/lib/mysql/
-socket  = /run/mysqld/mysqld.sock
-bind_address=*
-port = 3306
-user = mysql
-skip-networking=0
-skip-bind-address
+[mysqld]    # Server settings (MariaDB)
+datadir = /var/lib/mysql/            # Database storage directory
+socket  = /run/mysqld/mysqld.sock    # Local socket for connections
+bind_address=*                       # Listen on all interfaces
+port = 3306                          # MySQL/MariaDB port
+user = mysql                         # Run daemon as mysql user
+skip-networking=0                    # Enable TCP/IP networking
+skip-bind-address                    # Ignore bind-address in other configs

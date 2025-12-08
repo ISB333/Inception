@@ -9,7 +9,6 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - db_data:/var/lib/mysql
-      # source:target
     restart: always
     networks:
       - inception_net
@@ -42,7 +41,8 @@ services:
     build: ./requirements/nginx
     container_name: nginx
     cap_add:
-      - NET_BIND_SERVICE
+      - NET_BIND_SERVICE  # Allows nginx to bind to port 443 (privileged ports < 1024)
+                          # Otherwise NGINX would need to run as root, which is a security risk
     depends_on:
       - wordpress
     ports:

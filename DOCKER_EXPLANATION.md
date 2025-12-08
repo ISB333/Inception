@@ -62,7 +62,7 @@ The required directory structure for Inception is designed for **modularity** an
 ```
 srcs/
 ├── docker-compose.yml    # The Conductor
-├── .env                  # The Secrets
+├── .env                  # The 
 └── requirements/         # The Actors
     ├── mariadb/
     ├── nginx/

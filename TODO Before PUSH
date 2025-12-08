@@ -1,0 +1,2 @@
+- [ ] Remove .env (and screts?)
+- [ ] Can I remove the "-R" from chown & chmod of wordpress Dockerfile ?
