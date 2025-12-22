@@ -1,0 +1,113 @@
+## Project Scope
+
+System administration project focused on building a containerized web infrastructure using Docker and Docker Compose, executed entirely inside a virtual machine. 
+
+---
+
+## Execution Environment Requirements
+
+* Mandatory use of a Virtual Machine.
+* Docker and Docker Compose required.
+* No execution directly on host OS.
+* Project files structured exactly as specified.
+* All configuration files stored under `srcs/`.
+* Root-level `Makefile` mandatory to build and run the full stack. 
+
+---
+
+## Containerization Constraints
+
+* Docker Compose mandatory.
+* One service per container.
+* One Dockerfile per service.
+* Docker images must be built locally.
+* Pulling prebuilt images forbidden (except Alpine/Debian base).
+* Base images limited to:
+
+  * Penultimate stable Alpine **or**
+  * Penultimate stable Debian.
+* `latest` tag forbidden.
+* Containers must restart on crash.
+* No infinite loops, `tail -f`, `sleep infinity`, `while true`, or shell hacks.
+* Proper PID 1 behavior required.
+* No `network: host`, `--link`, or legacy links. 
+
+---
+
+## Mandatory Services
+
+Exactly the following services must exist:
+
+### NGINX
+
+* TLS only (TLSv1.2 or TLSv1.3).
+* Sole external entrypoint.
+* Port 443 only.
+* No other service exposed externally.
+
+### WordPress
+
+* WordPress + PHP-FPM only.
+* No NGINX inside container.
+
+### MariaDB
+
+* MariaDB only.
+* No NGINX.
+
+### Networking
+
+* One dedicated Docker network connecting all containers.
+* Network must be explicitly declared in `docker-compose.yml`.
+
+### Volumes
+
+* One volume for WordPress database.
+* One volume for WordPress site files.
+* Volumes mounted to host at:
+  `/home/<login>/data/`
+
+
+
+---
+
+## WordPress Database Constraints
+
+* Minimum two users:
+
+  * One administrator.
+  * One regular user.
+* Administrator username must NOT contain:
+  `admin`, `Admin`, `administrator`, or variants.
+
+
+---
+
+## Domain and Access Configuration
+
+* Local domain name required:
+  `<login>.42.fr`
+* Must resolve to local VM IP.
+* HTTPS only.
+* Access exclusively through NGINX container. 
+
+---
+
+## Security and Secrets Handling
+
+* No passwords inside Dockerfiles.
+* Environment variables mandatory.
+* `.env` file mandatory.
+* Docker secrets strongly recommended.
+* Any credential found in Git history causes failure.
+* Secrets stored locally and git-ignored.
+
+
+---
+
+## Project Structure Requirements
+
+* Fixed directory layout enforced.
+* `secrets/` directory for sensitive data.
+* `srcs/requirements/<service>/` structure per service.
+* `.dockerignore` per service expected.

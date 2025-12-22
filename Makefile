@@ -1,6 +1,10 @@
 all: build up
 
 build:
+	mkdir -p /home/adesille/data/mariadb
+	mkdir -p /home/adesille/data/wordpress
+	chmod 777 /home/adesille/data/mariadb
+	chmod 777 /home/adesille/data/wordpress
 	docker-compose -f srcs/docker-compose.yml build
 
 up:
